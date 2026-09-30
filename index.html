@@ -1,132 +1,227 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="description" content="Simulador didático de biorreatores: cinética, agitação e aeração, e ajuste de kLa e parâmetros a dados de ensaio.">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="description" content="Simulador didático de biorreatores: cinética, agitação e aeração, animação do reator e ajuste de kLa e parâmetros a dados de ensaio."><meta name="theme-color" content="#0b1412">
 <title>Simulador de Biorreator</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
 :root{
-  --bg:#eaeeea; --surface:#fbfcfb; --surface-2:#f1f4f1; --ink:#111a16; --ink-2:#44524b; --muted:#6f7c75;
-  --line:#d3dbd4; --line-2:#e3e8e4; --accent:#1e5a46; --accent-ink:#ffffff; --accent-soft:#d9e9e0;
-  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --grid:#e4e8e3; --axis:#b9c2bb;
+  --bg:#e8edea; --surface:#ffffff; --surface-2:#f3f6f4; --surface-3:#e9efeb; --ink:#0e1916; --ink-2:#3f4d46; --muted:#66746d;
+  --line:#d3dcd6; --line-2:#e5ebe7; --accent:#0f5a48; --accent-2:#157a61; --accent-ink:#ffffff; --accent-soft:#d9ebe2;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --grid:#e6ebe7; --axis:#b7c2bb; --now:#c47d0e;
   --good:#0ca30c; --warn:#fab219; --serious:#ec835a; --crit:#d03b3b; --good-ink:#006300; --crit-ink:#b42f2f; --warn-ink:#8a5b00;
-  --shadow:0 1px 2px rgba(17,26,22,.06),0 4px 16px rgba(17,26,22,.05);
+  --ph-exp:rgba(42,120,214,.09); --ph-desac:rgba(250,178,25,.13); --ph-o2:rgba(208,59,59,.10); --ph-inib:rgba(74,58,167,.10);
+  --ph-stat:rgba(102,116,109,.12); --ph-fed:rgba(27,175,122,.11); --ph-ss:rgba(27,175,122,.14); --ph-none:rgba(102,116,109,.08);
+  --shadow:0 1px 2px rgba(14,25,22,.05),0 8px 24px -12px rgba(14,25,22,.14);
+  --radius:14px;
   --f-ui:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-head:"Barlow Semi Condensed","Barlow",system-ui,sans-serif;
   --f-num:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  /* console: sempre escuro, como o display de um controlador */
+  --con-bg:#0b1412; --con-bg-2:#10201b; --con-line:#1f332d; --con-ink:#eef5f1; --con-ink-2:#b5c9c0; --con-muted:#7f978d; --con-glow:#f1b24a;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     color-scheme:dark;
-    --bg:#0b100e; --surface:#141a17; --surface-2:#1a221e; --ink:#edf2ee; --ink-2:#b4c0b9; --muted:#85928b;
-    --line:#29332e; --line-2:#212a26; --accent:#8ccbb1; --accent-ink:#0b100e; --accent-soft:#1c2d25;
-    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --grid:#212a26; --axis:#3a4540;
-    --good-ink:#2fbf2f; --crit-ink:#f07474; --warn-ink:#fab219; --shadow:none;
+    --bg:#0a0f0d; --surface:#121916; --surface-2:#18211d; --surface-3:#1d2723; --ink:#edf3ef; --ink-2:#b4c1ba; --muted:#86938c;
+    --line:#26312c; --line-2:#1f2924; --accent:#8fd0b5; --accent-2:#a6dcc5; --accent-ink:#0a0f0d; --accent-soft:#1a2c24;
+    --s1:#3987e5; --s2:#d95926; --s3:#199e70; --grid:#1f2924; --axis:#36423c; --now:#f1b24a;
+    --good-ink:#2fbf2f; --crit-ink:#f07474; --warn-ink:#fab219; --shadow:0 1px 0 rgba(255,255,255,.03);
+    --ph-exp:rgba(57,135,229,.12); --ph-desac:rgba(250,178,25,.10); --ph-o2:rgba(230,103,103,.13); --ph-inib:rgba(144,133,233,.12);
+    --ph-stat:rgba(134,147,140,.12); --ph-fed:rgba(25,158,112,.13); --ph-ss:rgba(25,158,112,.16); --ph-none:rgba(134,147,140,.08);
+    --con-bg:#070d0b; --con-bg-2:#0d1a16; --con-line:#1a2b26;
   }
 }
 :root[data-theme="dark"]{
   color-scheme:dark;
-  --bg:#0b100e; --surface:#141a17; --surface-2:#1a221e; --ink:#edf2ee; --ink-2:#b4c0b9; --muted:#85928b;
-  --line:#29332e; --line-2:#212a26; --accent:#8ccbb1; --accent-ink:#0b100e; --accent-soft:#1c2d25;
-  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --grid:#212a26; --axis:#3a4540;
-  --good-ink:#2fbf2f; --crit-ink:#f07474; --warn-ink:#fab219; --shadow:none;
+  --bg:#0a0f0d; --surface:#121916; --surface-2:#18211d; --surface-3:#1d2723; --ink:#edf3ef; --ink-2:#b4c1ba; --muted:#86938c;
+  --line:#26312c; --line-2:#1f2924; --accent:#8fd0b5; --accent-2:#a6dcc5; --accent-ink:#0a0f0d; --accent-soft:#1a2c24;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --grid:#1f2924; --axis:#36423c; --now:#f1b24a;
+  --good-ink:#2fbf2f; --crit-ink:#f07474; --warn-ink:#fab219; --shadow:0 1px 0 rgba(255,255,255,.03);
+  --ph-exp:rgba(57,135,229,.12); --ph-desac:rgba(250,178,25,.10); --ph-o2:rgba(230,103,103,.13); --ph-inib:rgba(144,133,233,.12);
+  --ph-stat:rgba(134,147,140,.12); --ph-fed:rgba(25,158,112,.13); --ph-ss:rgba(25,158,112,.16); --ph-none:rgba(134,147,140,.08);
+  --con-bg:#070d0b; --con-bg-2:#0d1a16; --con-line:#1a2b26;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 [hidden]{display:none!important}
-body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-ui);padding-inline:16px;padding-block:0 32px}
-button,input,select{font:inherit;color:inherit}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-ui);padding-inline:16px;padding-block:0 40px}
+button,input,select,textarea{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.wrap{max-width:1440px;margin:0 auto}
+.wrap{max-width:1480px;margin:0 auto}
+sub,sup{line-height:0}
 
-/* topo */
-.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-block:22px 16px}
-.brand{display:flex;gap:14px;align-items:center}
-.vessel{width:40px;height:48px;flex:none}
-.brand h1{font:700 26px/1.05 var(--f-head);letter-spacing:.2px;margin:0;text-wrap:balance}
-.brand p{margin:3px 0 0;color:var(--ink-2);font-size:14px;max-width:62ch}
+/* ---------- topo ---------- */
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px 24px;padding-block:20px 18px}
+.brand{display:flex;gap:14px;align-items:center;min-width:0}
+.logo{width:44px;height:44px;flex:none;border-radius:12px;background:var(--con-bg);display:grid;place-items:center}
+.logo svg{width:28px;height:34px}
+.eyebrow{font:600 11.5px/1 var(--f-head);text-transform:uppercase;letter-spacing:.12em;color:var(--accent-2)}
+.brand h1{font:700 clamp(24px,2.6vw,32px)/1.02 var(--f-head);letter-spacing:.1px;margin:4px 0 0;text-wrap:balance}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 12px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;font-weight:500;font-size:14px}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 13px;cursor:pointer;display:inline-flex;gap:7px;align-items:center;font-weight:500;font-size:14px;transition:border-color .15s,background .15s,transform .1s}
 .btn:hover{border-color:var(--accent)}
+.btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn svg{width:16px;height:16px}
+.btn.primary:hover{background:var(--accent-2)}
+.btn svg{width:16px;height:16px;flex:none}
 .btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent)}
+.btn:disabled{opacity:.6;cursor:progress}
 
-/* layout */
-.app{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:940px){.app{grid-template-columns:minmax(0,1fr)}}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;position:sticky;top:env(safe-area-inset-top,0px);max-height:calc(100vh - 16px);overflow:auto}
-@media (max-width:940px){.panel{position:static;max-height:none}}
-.panel-head{padding:16px 16px 12px;border-bottom:1px solid var(--line-2);display:grid;gap:12px}
-.lbl{font:600 11.5px/1 var(--f-head);text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
-.seg button{border:0;background:transparent;border-radius:6px;padding:7px 4px;cursor:pointer;font-weight:500;font-size:13.5px;line-height:1.15;color:var(--ink-2)}
-.seg button[aria-checked="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow);outline:1px solid var(--line)}
-.org select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface-2);font-weight:600}
-.org-meta{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin-top:6px}
-.org-meta .tag{font-size:13px;color:var(--ink-2)}
+/* ---------- layout ---------- */
+.app{display:grid;grid-template-columns:372px minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:980px){.app{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px);max-height:calc(100vh - 24px);overflow:auto;box-shadow:var(--shadow);scrollbar-width:thin}
+@media (max-width:980px){.panel{position:static;max-height:none}}
+.panel-top{padding:16px 16px 6px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.panel-top h2{font:700 19px/1 var(--f-head);margin:0}
 .edited{font-size:12px;color:var(--warn-ink);display:none;align-items:center;gap:6px}
 .edited.on{display:inline-flex}
 .linkbtn{border:0;background:none;padding:0;color:var(--accent);cursor:pointer;text-decoration:underline;font-size:12px}
-.blurb{font-size:13px;color:var(--ink-2);margin:6px 0 0}
+.pick{padding:8px 16px 14px;display:grid;gap:8px;border-bottom:1px solid var(--line-2)}
+.lbl{font:600 11.5px/1 var(--f-head);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.cards{display:grid;gap:6px}
+.cards.org{grid-template-columns:1fr}
+.cards.mode{grid-template-columns:repeat(3,minmax(0,1fr))}
+.pc{border:1px solid var(--line);background:var(--surface-2);border-radius:11px;padding:9px 10px;cursor:pointer;text-align:left;display:grid;gap:3px;transition:border-color .15s,background .15s,box-shadow .15s}
+.pc:hover{border-color:var(--accent)}
+.pc[aria-checked="true"]{background:var(--surface);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.cards.org .pc{grid-template-columns:30px minmax(0,1fr);align-items:center;column-gap:10px}
+.swatch{width:30px;height:30px;border-radius:50%;grid-row:span 2;position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.12)}
+.swatch::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.55),transparent 55%)}
+.pc .nm{font-weight:600;font-style:italic;font-size:14.5px;line-height:1.15}
+.pc .tg{font-size:12.5px;color:var(--muted);line-height:1.2}
+.cards.mode .pc{justify-items:center;text-align:center;padding:8px 4px 7px;gap:4px}
+.cards.mode .pc svg{width:46px;height:34px}
+.cards.mode .pc span{font-size:12.5px;font-weight:600;line-height:1.1}
+.blurb{font-size:13px;color:var(--ink-2);margin:2px 0 0}
 
 details.sec{border-bottom:1px solid var(--line-2)}
-details.sec>summary{list-style:none;cursor:pointer;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;font:600 15px/1.2 var(--f-head)}
+details.sec>summary{list-style:none;cursor:pointer;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px}
 details.sec>summary::-webkit-details-marker{display:none}
-details.sec>summary::after{content:"";width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg);margin-right:4px;transition:transform .15s}
+details.sec>summary .st{font:600 15.5px/1.15 var(--f-head)}
+details.sec>summary .ss{display:block;font:400 12.5px/1.3 var(--f-ui);color:var(--muted);margin-top:2px}
+details.sec>summary::after{content:"";flex:none;width:8px;height:8px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(45deg);margin-right:4px;transition:transform .15s}
 details.sec[open]>summary::after{transform:rotate(-135deg)}
-.fields{display:grid;gap:10px;padding:0 16px 16px}
-.f{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:4px 10px;align-items:center}
+.fields{display:grid;gap:12px;padding:0 16px 16px}
+.f{display:grid;grid-template-columns:minmax(0,1fr) auto 92px;gap:5px 6px;align-items:center}
 .f label{font-size:13.5px;color:var(--ink-2);line-height:1.2}
 .f label .sym{font-family:var(--f-num);font-size:12.5px;color:var(--ink);margin-right:5px}
 .f label .u{color:var(--muted);font-size:12px;white-space:nowrap}
-.f .num{width:100%;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);font:500 13.5px var(--f-num);text-align:right;font-variant-numeric:tabular-nums}
+.f .num{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font:500 13.5px var(--f-num);text-align:right;font-variant-numeric:tabular-nums}
+.f .num:focus{border-color:var(--accent);background:var(--surface)}
 .f .num[aria-invalid="true"]{border-color:var(--crit)}
-.f input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent);margin:0}
+.f input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--accent);margin:2px 0 0;height:18px}
 .f .hint{grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:-2px}
+.q{width:20px;height:20px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:600 11.5px/1 var(--f-ui);cursor:pointer;display:grid;place-items:center;padding:0}
+.q:hover,.q[aria-expanded="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.help{grid-column:1/-1;font-size:12.8px;line-height:1.45;color:var(--ink-2);background:var(--accent-soft);border-radius:8px;padding:8px 10px;margin:2px 0}
+.rowc{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
 .check{display:flex;gap:8px;align-items:center;font-size:13.5px;color:var(--ink-2);cursor:pointer}
 .check input{accent-color:var(--accent);width:16px;height:16px}
 .minisel{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;font-size:13.5px;color:var(--ink-2)}
-.minisel select{padding:5px 8px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2)}
-.sub{font:600 11px/1 var(--f-head);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin-top:6px}
+.minisel select{padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);max-width:210px}
+.sub{font:600 11px/1 var(--f-head);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-top:6px}
 .note{font-size:12.5px;color:var(--muted);padding:12px 16px 16px;margin:0}
 
-/* principal */
+/* ---------- principal ---------- */
 main{display:grid;gap:16px;min-width:0}
-.status{display:flex;flex-wrap:wrap;gap:6px}
-.pv{display:inline-flex;align-items:baseline;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 9px;font-size:12.5px;color:var(--muted)}
-.pv b{font:500 13px var(--f-num);color:var(--ink)}
+.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;overflow-x:auto;position:sticky;top:env(safe-area-inset-top,0px);z-index:6;box-shadow:var(--shadow);scrollbar-width:none}
+.tabs button{border:0;background:none;padding:8px 14px;cursor:pointer;font:600 15px var(--f-head);color:var(--muted);border-radius:9px;white-space:nowrap;display:inline-flex;gap:7px;align-items:center}
+.tabs button svg{width:16px;height:16px}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--accent-ink);background:var(--accent)}
+.tabpanel{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px 12px;min-width:0;box-shadow:var(--shadow)}
+.card h3{margin:0;font:600 17px/1.2 var(--f-head)}
+.card .cap{margin:2px 0 10px;color:var(--muted);font-size:13px}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.split{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:16px}
+@media (max-width:1180px){.split{grid-template-columns:minmax(0,1fr)}}
+
+/* como usar */
+.howto{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;align-items:stretch}
+.howto .stp{display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13.5px;color:var(--ink-2)}
+.howto .stp b{display:block;color:var(--ink);font:600 14.5px/1.2 var(--f-head);margin-bottom:1px}
+.howto .n{width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:600 14px var(--f-num)}
+.howto .x{align-self:center;border:0;background:none;color:var(--muted);cursor:pointer;font-size:13px;text-decoration:underline}
+@media (max-width:860px){.howto{grid-template-columns:minmax(0,1fr)}}
+
+/* console do reator */
+.console{background:radial-gradient(120% 90% at 20% 0%,var(--con-bg-2),var(--con-bg) 60%);color:var(--con-ink);border-radius:18px;padding:16px;display:grid;grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:16px 20px;border:1px solid var(--con-line);box-shadow:0 20px 40px -24px rgba(0,0,0,.45)}
+@media (max-width:760px){.console{grid-template-columns:minmax(0,1fr)}}
+.vessel-wrap{position:relative;min-height:340px;border-radius:12px;background:radial-gradient(80% 60% at 50% 40%,rgba(143,208,181,.07),transparent 70%)}
+#reactor{width:100%;height:100%;display:block;min-height:340px}
+.phase-pill{position:absolute;left:10px;bottom:10px;display:inline-flex;gap:8px;align-items:center;background:rgba(7,13,11,.72);border:1px solid var(--con-line);border-radius:99px;padding:5px 11px 5px 8px;font:600 12.5px var(--f-ui);color:var(--con-ink);backdrop-filter:blur(4px)}
+.phase-pill i{width:10px;height:10px;border-radius:50%;display:block}
+.con-side{display:grid;gap:12px;align-content:start;min-width:0}
+.con-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.con-title{font:600 12px/1 var(--f-head);text-transform:uppercase;letter-spacing:.14em;color:var(--con-muted)}
+.con-t{font:500 30px/1 var(--f-num);color:var(--con-glow);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.con-t small{font-size:14px;color:var(--con-muted);margin-left:4px}
+.readouts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+@media (max-width:420px){.readouts{grid-template-columns:repeat(2,minmax(0,1fr))}.ro.gauge svg{width:36px;height:36px}.console{padding:12px}}
+.ro{background:rgba(255,255,255,.03);border:1px solid var(--con-line);border-radius:10px;padding:9px 11px 10px;display:grid;gap:3px;min-width:0}
+.ro .k{font-size:12px;color:var(--con-muted);display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro .k i{width:10px;height:3px;border-radius:2px;display:block;flex:none}
+.ro .v{font:500 clamp(17px,4.4vw,21px)/1.1 var(--f-num);color:var(--con-ink);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro .v small{font-size:12px;color:var(--con-muted);margin-left:3px}
+.ro .bar{height:4px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:3px}
+.ro .bar b{display:block;height:100%;border-radius:3px;width:0;transition:width .12s linear}
+.ro .d{font-size:11.5px;color:var(--con-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro.gauge{grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:center}
+.ro.gauge svg{width:46px;height:46px;grid-row:span 3}
+.timeline{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border-top:1px solid var(--con-line);padding-top:12px}
+.play{width:44px;height:44px;border-radius:50%;border:0;background:var(--con-glow);color:#1b1206;cursor:pointer;display:grid;place-items:center;box-shadow:0 0 0 4px rgba(241,178,74,.14)}
+.play:hover{filter:brightness(1.07)}
+.play svg{width:18px;height:18px}
+.scrub{position:relative;display:grid;gap:6px;min-width:0}
+.track{position:relative;height:10px;border-radius:6px;overflow:hidden;background:rgba(255,255,255,.06);display:flex}
+.track span{height:100%;display:block}
+.scrub input[type=range]{width:100%;margin:0;accent-color:var(--con-glow);height:20px}
+.ticks{display:flex;justify-content:space-between;font:11px var(--f-num);color:var(--con-muted)}
+.speed{border:1px solid var(--con-line);background:transparent;color:var(--con-ink-2);border-radius:8px;padding:6px 10px;cursor:pointer;font:500 13px var(--f-num)}
+.speed:hover{border-color:var(--con-glow);color:var(--con-ink)}
+.legend-ph{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--con-ink-2)}
+.legend-ph span{display:inline-flex;align-items:center;gap:6px}
+.legend-ph i{width:10px;height:10px;border-radius:3px;display:block}
+
+/* kpis */
 .kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
 .kpis.k4{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media (max-width:1320px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpis.k4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1360px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}.kpis.k4{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:560px){.kpis,.kpis.k4{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .v{font-size:20px}}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:4px;align-content:start;box-shadow:var(--shadow)}
 .kpi .k{font-size:12.5px;color:var(--ink-2)}
-.kpi .v{font:500 24px/1.1 var(--f-num);letter-spacing:-.5px}
+.kpi .v{font:500 25px/1.1 var(--f-num);letter-spacing:-.5px}
 .kpi .v small{font-size:13px;color:var(--muted);letter-spacing:0;margin-left:3px}
 .kpi .d{font-size:12.5px;color:var(--muted)}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:99px;padding:2px 8px 2px 6px;border:1px solid var(--line);width:max-content}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:99px;padding:2px 8px 2px 6px;border:1px solid var(--line);width:max-content;background:var(--surface)}
 .chip svg{width:12px;height:12px}
 .chip.good{color:var(--good-ink)} .chip.good svg{color:var(--good)}
 .chip.warning{color:var(--warn-ink)} .chip.warning svg{color:var(--warn)}
 .chip.critical{color:var(--crit-ink)} .chip.critical svg{color:var(--crit)}
 
+/* história e diagnóstico */
+.story{list-style:none;margin:0;padding:0;display:grid;gap:0;position:relative}
+.story li{display:grid;grid-template-columns:92px 14px minmax(0,1fr);gap:10px;align-items:start;padding:8px 6px;border-radius:10px;cursor:pointer;position:relative}
+.story li:hover{background:var(--surface-2)}
+.story li.on{background:var(--accent-soft)}
+.story .tm{font:500 12.5px/1.35 var(--f-num);color:var(--muted);text-align:right;padding-top:1px}
+.story .dot{width:12px;height:12px;border-radius:50%;margin-top:3px;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
+.story li:not(:last-child)::after{content:"";position:absolute;left:calc(6px + 92px + 10px + 6px - 1px);top:24px;bottom:-8px;width:2px;background:var(--line-2)}
+.story .tx{font-size:14px;color:var(--ink-2)}
+@media (max-width:560px){.story li{grid-template-columns:62px 14px minmax(0,1fr);gap:8px}.story li:not(:last-child)::after{left:calc(6px + 62px + 8px + 6px - 1px)}}
+.story .tx b{color:var(--ink);font-weight:600;display:block;font:600 14.5px/1.25 var(--f-head)}
 .alerts{list-style:none;margin:0;padding:0;display:grid;gap:6px}
-.alerts li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-size:14px}
+.alerts li{display:grid;grid-template-columns:18px minmax(0,1fr);gap:10px;align-items:start;background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:9px 12px;font-size:14px}
 .alerts li svg{width:18px;height:18px;margin-top:1px}
 .alerts li.good svg{color:var(--good)} .alerts li.warning svg{color:var(--warn)} .alerts li.critical svg{color:var(--crit)} .alerts li.info svg{color:var(--muted)}
-.alerts li.critical{border-color:color-mix(in srgb,var(--crit) 45%,var(--line))}
+.alerts li.critical{border-color:color-mix(in srgb,var(--crit) 45%,var(--line));background:color-mix(in srgb,var(--crit) 6%,var(--surface))}
+.alerts li.warning{background:color-mix(in srgb,var(--warn) 7%,var(--surface))}
 .alerts b{font-weight:600}
-
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto}
-.tabs button{border:0;background:none;padding:9px 14px;cursor:pointer;font:600 15px var(--f-head);color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
-.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.tabpanel{display:grid;gap:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 10px;min-width:0}
-.card h3{margin:0;font:600 16px/1.2 var(--f-head)}
-.card .cap{margin:2px 0 8px;color:var(--muted);font-size:13px}
-.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
 
 /* gráficos */
 .chart{position:relative;min-width:0}
@@ -136,7 +231,7 @@ main{display:grid;gap:16px;min-width:0}
 .plot{position:relative}
 .plot svg{display:block;width:100%;overflow:visible}
 .plot svg:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
-.tt{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);box-shadow:0 4px 18px rgba(0,0,0,.12);border-radius:8px;padding:7px 10px;font-size:12.5px;min-width:130px;z-index:5}
+.tt{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.14);border-radius:10px;padding:8px 10px;font-size:12.5px;min-width:140px;z-index:5}
 .tt .h{color:var(--muted);margin-bottom:4px;font-family:var(--f-num);font-size:11.5px}
 .tt .r{display:grid;grid-template-columns:14px auto 1fr;gap:6px;align-items:center}
 .tt .r b{font:500 12.5px var(--f-num);color:var(--ink);text-align:right}
@@ -145,7 +240,7 @@ main{display:grid;gap:16px;min-width:0}
 .empty{padding:28px 10px;text-align:center;color:var(--muted);font-size:14px}
 
 /* tabela */
-.tblwrap{overflow-x:auto;max-height:340px;overflow-y:auto;border:1px solid var(--line-2);border-radius:8px}
+.tblwrap{overflow-x:auto;max-height:340px;overflow-y:auto;border:1px solid var(--line-2);border-radius:10px}
 table{border-collapse:collapse;width:100%;font-size:13px}
 th,td{padding:6px 10px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 td{font-family:var(--f-num);font-size:12.5px}
@@ -153,34 +248,35 @@ th{position:sticky;top:0;background:var(--surface-2);font-weight:600;color:var(-
 tbody tr:nth-child(even){background:var(--surface-2)}
 details.more>summary{cursor:pointer;color:var(--accent);font-weight:500;font-size:14px;padding:4px 0}
 
-/* modelo */
+/* modelo / prosa */
 .eqs{display:grid;gap:8px;margin:8px 0 4px}
-.eq{font:15px/1.5 var(--f-num);background:var(--surface-2);border:1px solid var(--line-2);border-radius:8px;padding:8px 12px;overflow-x:auto;white-space:nowrap}
+.eq{font:15px/1.5 var(--f-num);background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;padding:9px 12px;overflow-x:auto;white-space:nowrap}
 .eq .c{color:var(--muted);font-family:var(--f-ui);font-size:13px;margin-left:10px}
-.prose{max-width:72ch;font-size:14.5px;color:var(--ink-2)}
-.prose h4{font:600 15px var(--f-head);color:var(--ink);margin:14px 0 4px}
+.prose{font-size:14.5px;color:var(--ink-2)}
+.prose>*{max-width:78ch}
+.prose h4{font:600 15.5px var(--f-head);color:var(--ink);margin:16px 0 4px}
 .prose ul{padding-left:18px;margin:4px 0}
 .prose li{margin:3px 0}
 .sstbl td:first-child,.sstbl th:first-child{text-align:left;font-family:var(--f-ui)}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:14px;z-index:20}
-.fitgrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px;align-items:start}
+.sstbl .u{color:var(--muted);font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 15px;border-radius:10px;font-size:14px;z-index:20;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.fitgrid{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:760px){.fitgrid{grid-template-columns:minmax(0,1fr)}}
 .fitin{display:grid;gap:8px}
-.fitin textarea{width:100%;font:12.5px/1.45 var(--f-num);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;color:var(--ink)}
+.fitin textarea{width:100%;font:12.5px/1.45 var(--f-num);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;resize:vertical;color:var(--ink)}
 .fitrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .fitact{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:10px}
 .filebtn{position:relative;overflow:hidden}
 .filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
 .filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
-.numsm{width:70px;padding:5px 7px;border:1px solid var(--line);border-radius:6px;background:var(--surface-2);font:500 13px var(--f-num);text-align:right}
-.btn:disabled{opacity:.6;cursor:progress}
+.numsm{width:70px;padding:5px 7px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);font:500 13px var(--f-num);text-align:right}
 .eqgrid{display:grid;grid-template-columns:minmax(0,280px) minmax(0,1fr);gap:16px;align-items:center}
 @media (max-width:760px){.eqgrid{grid-template-columns:minmax(0,1fr)}}
-.sstbl .u{color:var(--muted);font-size:12px}
 #equipCard .sstbl td:nth-child(3){white-space:normal;text-align:left;font-family:var(--f-ui);font-size:12px;color:var(--muted);min-width:140px}
 #equipCard .sstbl th:nth-child(3){text-align:left}
 #equipCard .sstbl td:nth-child(2){white-space:normal}
-.foot{color:var(--muted);font-size:12.5px;margin-top:10px;max-width:90ch}
+.foot{color:var(--muted);font-size:12.5px;margin-top:6px;max-width:90ch}
+.sr{position:absolute;left:-9999px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head><body>
@@ -188,23 +284,25 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:500;font-siz
 <div class="wrap">
   <header class="top">
     <div class="brand">
-      <svg class="vessel" viewBox="0 0 40 48" aria-hidden="true">
-        <rect x="9" y="3" width="22" height="4" rx="1.5" fill="var(--accent)"/>
-        <line x1="20" y1="3" x2="20" y2="36" stroke="var(--ink-2)" stroke-width="1.6"/>
-        <path d="M7 9h26v28a8 8 0 0 1-8 8H15a8 8 0 0 1-8-8z" fill="none" stroke="var(--ink)" stroke-width="2"/>
-        <path d="M8 22c4 2 8-2 12 0s8 2 12 0v15a7 7 0 0 1-7 7H15a7 7 0 0 1-7-7z" fill="var(--s3)" opacity=".35"/>
-        <rect x="14" y="34" width="12" height="3" rx="1" fill="var(--ink-2)"/>
-        <circle cx="13" cy="30" r="1.4" fill="var(--s1)"/><circle cx="27" cy="27" r="1.1" fill="var(--s1)"/><circle cx="24" cy="39" r="1.2" fill="var(--s1)"/>
-      </svg>
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 40 48">
+          <rect x="9" y="2" width="22" height="4" rx="1.5" fill="#f1b24a"/>
+          <line x1="20" y1="2" x2="20" y2="36" stroke="#b5c9c0" stroke-width="1.8"/>
+          <path d="M7 9h26v28a8 8 0 0 1-8 8H15a8 8 0 0 1-8-8z" fill="none" stroke="#eef5f1" stroke-width="2.2"/>
+          <path d="M8.2 22c4 2 8-2 12 0s8 2 12 0v15a7 7 0 0 1-7 7H15a7 7 0 0 1-7-7z" fill="#1baf7a" opacity=".55"/>
+          <rect x="13" y="33" width="14" height="3" rx="1" fill="#eef5f1"/>
+          <circle cx="13" cy="28" r="1.4" fill="#8fd0b5"/><circle cx="27" cy="26" r="1.1" fill="#8fd0b5"/><circle cx="23" cy="40" r="1.2" fill="#8fd0b5"/>
+        </svg>
+      </div>
       <div>
+        <div class="eyebrow">Bioprocessos · modelagem cinética</div>
         <h1>Simulador de Biorreator</h1>
-        <p>Modelagem cinética de cultivos microbianos em batelada, batelada alimentada e contínuo, com agitação e aeração. Ajuste os parâmetros à esquerda ou calcule kLa e cinética a partir dos seus dados.</p>
       </div>
     </div>
     <div class="actions">
       <button class="btn" id="pinBtn" type="button" aria-pressed="false">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M2 12c3-1 4-8 6-8s3 7 6 8" stroke-dasharray="2.5 2"/></svg>
-        <span>Fixar como referência</span></button>
+        <span>Comparar cenários</span></button>
       <button class="btn primary" id="csvBtn" type="button">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v8m-3.5-3L8 10.5 11.5 7M3 13.5h10"/></svg>
         <span>Exportar CSV</span></button>
@@ -212,51 +310,84 @@ details.more>summary{cursor:pointer;color:var(--accent);font-weight:500;font-siz
   </header>
 
   <div class="app">
-    <aside class="panel" aria-label="Parâmetros">
-      <div class="panel-head">
-        <div>
-          <div class="lbl" id="modeLbl" style="margin-bottom:7px">Modo de operação</div>
-          <div class="seg" role="radiogroup" aria-labelledby="modeLbl" id="modeSeg">
-            <button type="button" role="radio" data-mode="batch">Batelada</button>
-            <button type="button" role="radio" data-mode="fedbatch">Batelada alimentada</button>
-            <button type="button" role="radio" data-mode="chemostat">Contínuo</button>
-          </div>
-        </div>
-        <div class="org">
-          <label class="lbl" for="preset" style="display:block;margin-bottom:7px">Organismo (preset)</label>
-          <select id="preset">
-            <option value="ecoli">Escherichia coli</option>
-            <option value="yeast">Saccharomyces cerevisiae</option>
-            <option value="lacto">Lactobacillus delbrueckii</option>
-          </select>
-          <div class="org-meta"><span class="tag" id="orgTag"></span>
-            <span class="edited" id="edited">parâmetros editados · <button type="button" class="linkbtn" id="resetBtn">restaurar</button></span></div>
-          <p class="blurb" id="orgBlurb"></p>
+    <aside class="panel" aria-label="Configuração do cultivo">
+      <div class="panel-top">
+        <h2>Configuração</h2>
+        <span class="edited" id="edited">cinética editada · <button type="button" class="linkbtn" id="resetBtn">restaurar</button></span>
+      </div>
+      <div class="pick">
+        <div class="lbl" id="orgLbl">Organismo</div>
+        <div class="cards org" role="radiogroup" aria-labelledby="orgLbl" id="orgCards"></div>
+        <p class="blurb" id="orgBlurb"></p>
+      </div>
+      <div class="pick">
+        <div class="lbl" id="modeLbl">Modo de operação</div>
+        <div class="cards mode" role="radiogroup" aria-labelledby="modeLbl" id="modeSeg">
+          <button type="button" class="pc" role="radio" data-mode="batch">
+            <svg viewBox="0 0 46 34" aria-hidden="true"><path d="M15 4v22a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 14h14v12a3 3 0 0 1-3 3h-8a3 3 0 0 1-3-3z" fill="var(--s3)" opacity=".5"/><line x1="23" y1="1" x2="23" y2="22" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span>Batelada</span></button>
+          <button type="button" class="pc" role="radio" data-mode="fedbatch">
+            <svg viewBox="0 0 46 34" aria-hidden="true"><path d="M17 4v22a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M18 11h14v15a3 3 0 0 1-3 3h-8a3 3 0 0 1-3-3z" fill="var(--s3)" opacity=".5"/><path d="M2 6h11v5" fill="none" stroke="var(--s2)" stroke-width="1.8"/><path d="M10.5 9l2.5 3 2.5-3" fill="none" stroke="var(--s2)" stroke-width="1.8"/><line x1="25" y1="1" x2="25" y2="22" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span>Alimentada</span></button>
+          <button type="button" class="pc" role="radio" data-mode="chemostat">
+            <svg viewBox="0 0 46 34" aria-hidden="true"><path d="M15 4v22a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 13h14v13a3 3 0 0 1-3 3h-8a3 3 0 0 1-3-3z" fill="var(--s3)" opacity=".5"/><path d="M1 8h11v4" fill="none" stroke="var(--s2)" stroke-width="1.8"/><path d="M31 14h13" fill="none" stroke="var(--s1)" stroke-width="1.8"/><path d="M41 11l3 3-3 3" fill="none" stroke="var(--s1)" stroke-width="1.8"/><line x1="23" y1="1" x2="23" y2="22" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span>Contínuo</span></button>
         </div>
       </div>
       <div id="sections"></div>
-      <p class="note">Valores dos presets são ordens de grandeza típicas da literatura, para ensino. Para um projeto real, ajuste os parâmetros a dados experimentais do seu sistema.</p>
+      <p class="note">Os presets usam ordens de grandeza típicas da literatura, para ensino. Num projeto real, ajuste os parâmetros a dados do seu sistema na aba “Ajustar a dados”.</p>
     </aside>
 
     <main>
-      <div class="status" id="status" aria-label="Condições atuais"></div>
-      <section class="kpis" id="kpis" aria-label="Resultados"></section>
-      <ul class="alerts" id="alerts" aria-label="Diagnóstico"></ul>
-
       <div class="tabs" role="tablist" id="tabs">
-        <button role="tab" aria-selected="true" data-tab="cultivo" id="tab-cultivo">Cultivo</button>
-        <button role="tab" aria-selected="false" data-tab="fit" id="tab-fit">Ajustar a dados</button>
-        <button role="tab" aria-selected="false" data-tab="ss" id="tab-ss">Estado estacionário</button>
-        <button role="tab" aria-selected="false" data-tab="amb" id="tab-amb">Ambiente</button>
-        <button role="tab" aria-selected="false" data-tab="modelo" id="tab-modelo">Modelo</button>
+        <button role="tab" aria-selected="true" data-tab="cultivo" id="tab-cultivo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 2.5l8 5.5-8 5.5z" stroke-linejoin="round"/></svg>Simular</button>
+        <button role="tab" aria-selected="false" data-tab="fit" id="tab-fit"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="3.5" cy="11" r="1"/><circle cx="7" cy="7.5" r="1"/><circle cx="12" cy="5" r="1"/><path d="M1.5 13C6 9 9 5 14.5 3.5"/></svg>Ajustar a dados</button>
+        <button role="tab" aria-selected="false" data-tab="ss" id="tab-ss"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M1.5 12.5c3-7 6-7 13-7"/><path d="M1.5 14.5h13"/></svg>Regime contínuo</button>
+        <button role="tab" aria-selected="false" data-tab="amb" id="tab-amb"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 1.5v8"/><circle cx="8" cy="11.5" r="3"/><path d="M11 3.5h3M11 6h2"/></svg>Ambiente e agitação</button>
+        <button role="tab" aria-selected="false" data-tab="modelo" id="tab-modelo"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 3h10M3 3l5 5-5 5h10"/></svg>Equações</button>
       </div>
 
       <section class="tabpanel" id="p-cultivo" role="tabpanel" aria-labelledby="tab-cultivo">
+        <div class="howto" id="howto">
+          <div class="stp"><span class="n">1</span><div><b>Monte o cultivo</b>Escolha o organismo e o modo de operação no painel ao lado.</div></div>
+          <div class="stp"><span class="n">2</span><div><b>Ajuste o ambiente</b>Temperatura, pH, aeração e agitação. Tudo recalcula na hora; o “?” explica cada parâmetro.</div></div>
+          <div class="stp"><span class="n">3</span><div><b>Dê play e leia</b>Acompanhe o reator no tempo e veja o que aconteceu em cada fase, logo abaixo.</div></div>
+          <button type="button" class="x" id="howtoClose">Entendi</button>
+        </div>
+
+        <section class="console" aria-label="Estado do reator no tempo">
+          <div class="vessel-wrap">
+            <canvas id="reactor" role="img" aria-label="Animação do biorreator no instante selecionado"></canvas>
+            <div class="phase-pill" id="phasePill"><i></i><span></span></div>
+          </div>
+          <div class="con-side">
+            <div class="con-head"><span class="con-title">Leituras no instante</span><span class="con-t" id="conT">0,0<small>h</small></span></div>
+            <div class="readouts" id="readouts"></div>
+          </div>
+          <div class="timeline">
+            <button type="button" class="play" id="playBtn" aria-label="Reproduzir"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l9.5 5.5L4 13.5z" fill="currentColor"/></svg></button>
+            <div class="scrub">
+              <div class="track" id="phaseTrack" aria-hidden="true"></div>
+              <input type="range" id="scrub" min="0" max="1" step="0.001" value="1" aria-label="Instante da simulação">
+              <div class="ticks" id="ticks"></div>
+            </div>
+            <button type="button" class="speed" id="speedBtn" aria-label="Velocidade da reprodução">1×</button>
+          </div>
+          <div class="legend-ph" id="phaseLegend"></div>
+        </section>
+
+        <section class="kpis" id="kpis" aria-label="Resultados"></section>
+
         <div class="card">
-          <h3>Biomassa, substrato e produto</h3>
-          <p class="cap" id="capMain">Concentrações no reator ao longo do tempo (g/L)</p>
+          <div class="card-head"><div><h3>Biomassa, substrato e produto</h3><p class="cap" id="capMain">Concentrações no reator ao longo do tempo (g/L)</p></div></div>
           <div class="chart" id="chMain"></div>
         </div>
+
+        <div class="split">
+          <div class="card"><h3>O que aconteceu</h3><p class="cap">As fases do cultivo em ordem. Clique numa fase para ver o reator naquele instante.</p><ol class="story" id="story"></ol></div>
+          <div class="card"><h3>Diagnóstico</h3><p class="cap">Gargalos, riscos e verificações desta configuração</p><ul class="alerts" id="alerts" aria-label="Diagnóstico"></ul></div>
+        </div>
+
         <div class="grid2" id="subCharts">
           <div class="card" id="cardDO"><h3>Oxigênio dissolvido</h3><p class="cap">% da saturação com ar</p><div class="chart" id="chDO"></div></div>
           <div class="card"><h3>Velocidade específica de crescimento</h3><p class="cap">μ (h⁻¹), já com limitações de substrato, O₂ e produto</p><div class="chart" id="chMu"></div></div>
@@ -907,6 +1038,55 @@ function eqHint(rpm) {
   const e = equip(state.v, rpm);
   return `kLa ≈ ${nf(e.kLa, 0)} h⁻¹ · P/V ≈ ${nf(e.PV, 0)} W/m³ · ponta ${nf(e.tip, 2)} m/s`;
 }
+const HELP = {
+  X0: 'Quanta biomassa (célula seca) entra no inóculo. Típico: 0,05 a 1 g/L.',
+  S0: 'Concentração inicial da fonte de carbono (ex.: glicose). Mais substrato rende mais célula e produto, mas também pede mais O₂.',
+  P0: 'Produto já presente no começo. Normalmente zero.',
+  V0: 'Volume de meio no reator no início. Em bancada: 0,5 a 5 L.',
+  tEnd: 'Até quando a simulação roda.',
+  tFeed: 'Quando a bomba liga. Antes disso o reator funciona em batelada; costuma-se ligar quando o substrato inicial está acabando.',
+  Sf: 'Concentração de substrato na solução que entra. Na batelada alimentada usa-se solução concentrada (200 a 500 g/L) para não encher o reator rápido demais.',
+  feedType: 'Constante: mesma vazão o tempo todo. Exponencial: a vazão cresce junto com as células e mantém μ fixo, estratégia clássica para chegar a alta densidade celular.',
+  F: 'Litros por hora bombeados para dentro do reator.',
+  muSet: 'Velocidade de crescimento que você quer impor. Ficar abaixo de μ_máx evita acúmulo de substrato e de subprodutos.',
+  Vmax: 'Capacidade útil do reator. A bomba desliga ao chegar aqui.',
+  D: 'Vazão dividida pelo volume (F/V): a rapidez com que o meio é trocado. Se D passar do μ máximo, as células saem mais rápido do que se multiplicam e o reator “lava”.',
+  T: 'Temperatura mantida pelo controlador. Cada organismo tem mínimo, ótimo e máximo; veja a aba Ambiente e agitação.',
+  pH: 'pH mantido pelo controlador (adição automática de ácido ou base).',
+  aer: 'Liga o balanço de oxigênio. Desligue para cultivos anaeróbios, como a fermentação alcoólica.',
+  doCtl: 'Agitação fixa: rotação e kLa constantes. Cascata: o controlador acelera o agitador quando o OD cai abaixo do setpoint, como num biorreator de verdade.',
+  kLaSrc: 'Informar: você digita o kLa. Calcular: o programa estima o kLa a partir do impelidor, da rotação e da vazão de ar.',
+  kLa: 'Coeficiente de transferência de O₂ do gás para o líquido. Quanto maior, mais oxigênio chega às células. Depende da agitação e da aeração.',
+  rpm: 'Rotação do agitador. Mais rotação dá mais potência e mais kLa, e também mais cisalhamento.',
+  DOsp: 'Oxigênio dissolvido que o controlador tenta manter. Comum: 20 a 40% da saturação.',
+  kLaMin: 'kLa mínimo da cascata, que garante mistura mesmo com pouca demanda.', kLaMax: 'kLa máximo que o equipamento consegue entregar.',
+  rpmMin: 'Rotação mínima da cascata, para manter a mistura.', rpmMax: 'Rotação máxima que o motor aguenta.',
+  imp: 'Rushton (pás planas): fluxo radial, ótima para quebrar bolhas, consome muita potência. Pás inclinadas, hidrofólio e hélice: fluxo axial, misturam com menos potência e menos cisalhamento.',
+  nImp: 'Reatores mais altos usam 2 ou 3 impelidores no mesmo eixo.',
+  DiDt: 'Diâmetro do impelidor dividido pelo diâmetro do tanque.',
+  HD: 'Altura do líquido dividida pelo diâmetro do tanque. Bancada: 1 a 2.',
+  vvm: 'Volume de ar por volume de meio por minuto. Típico: 0,5 a 1,5 vvm.',
+  medium: 'Sais dissolvidos impedem que as bolhas se juntem; bolhas menores têm mais área, então o kLa sobe.',
+  mu: 'Velocidade específica de crescimento máxima, na temperatura e no pH ótimos. Tempo para dobrar a biomassa = ln 2 / μ.',
+  Ks: 'Concentração de substrato em que as células crescem na metade da velocidade máxima. Valor pequeno: crescem rápido até o substrato quase acabar.',
+  useKi: 'Substrato demais também pode atrapalhar (ex.: glicose muito alta). Liga o modelo de Haldane.',
+  Ki: 'Quanto menor, mais forte a inibição por excesso de substrato.',
+  Yxs: 'Gramas de célula formadas por grama de substrato usado para crescer.',
+  kd: 'Taxa de morte e lise celular.',
+  ms: 'Substrato gasto só para manter as células vivas, sem crescer.',
+  alpha: 'Produto formado junto com o crescimento: g de produto por g de célula nova.',
+  beta: 'Produto formado mesmo sem crescimento: g de produto por g de célula por hora.',
+  Yps: 'Gramas de produto por grama de substrato desviado para produto.',
+  useP: 'Produto acumulado (ex.: etanol, ácido lático) freia o crescimento.',
+  Pmax: 'Concentração de produto em que o crescimento para.', n: 'Formato da inibição: 1 é linear.',
+  Yxo: 'Gramas de célula por grama de O₂ consumido.', mo: 'O₂ gasto só para manutenção.',
+  Ko: 'Abaixo desse OD o oxigênio começa a limitar o crescimento. Poucos décimos de mg/L.',
+  Tmin: 'Abaixo disso o organismo não cresce.', Topt: 'Onde ele cresce mais rápido.', Tmax: 'Acima disso ele não cresce (e morre).',
+  pHmin: 'pH mínimo de crescimento.', pHopt: 'pH ótimo.', pHmax: 'pH máximo de crescimento.'
+};
+const SEC_SUB = { init: 'O que entra no reator no começo', feed: 'Bomba de entrada (e saída, no contínuo)', env: 'Setpoints do controlador e oxigênio',
+  equip: 'Impelidor, geometria e ar', kin: 'Como as células crescem e produzem', card: 'Limites de crescimento do organismo' };
+const LOOK = { ecoli: { medium: [226, 190, 118], cells: [240, 228, 196] }, yeast: { medium: [214, 170, 92], cells: [236, 222, 186] }, lacto: { medium: [238, 229, 204], cells: [250, 246, 234] } };
 const FIELD = {};
 SECTIONS.forEach(s => s.items.forEach(it => { if (it.id) FIELD[it.id] = it; }));
 
@@ -938,21 +1118,40 @@ function buildPanel() {
   const host = $('#sections');
   host.innerHTML = SECTIONS.map(sec => `
     <details class="sec" id="sec-${sec.id}" ${sec.open ? 'open' : ''}>
-      <summary>${sec.title}</summary>
+      <summary><span><span class="st">${sec.title}</span><span class="ss">${SEC_SUB[sec.id] || ''}</span></span></summary>
       <div class="fields">${sec.items.map(fieldHTML).join('')}</div>
     </details>`).join('');
   host.addEventListener('input', onField);
   host.addEventListener('change', onFieldCommit);
+  host.addEventListener('click', e => {
+    const q = e.target.closest('.q'); if (!q) return;
+    e.preventDefault();
+    const h = document.getElementById('hp-' + q.dataset.help), open = q.getAttribute('aria-expanded') === 'true';
+    q.setAttribute('aria-expanded', String(!open)); h.hidden = open;
+  });
+  const oc = $('#orgCards');
+  oc.innerHTML = Object.keys(PRESETS).map(k => { const pr = PRESETS[k], L = LOOK[k];
+    return `<button type="button" class="pc" role="radio" data-org="${k}"><span class="swatch" style="background:linear-gradient(135deg,rgb(${L.medium}),rgb(${L.cells}))"></span><span class="nm">${pr.name}</span><span class="tg">${pr.tag}</span></button>`; }).join('');
+  oc.addEventListener('click', e => { const b = e.target.closest('[data-org]'); if (b) setPreset(b.dataset.org); });
 }
+function setPreset(key) {
+  if (key === state.preset) return;
+  const keep = {}; EQUIP_KEYS.forEach(k => { keep[k] = state.v[k]; });
+  state = fromPreset(key, state.mode); Object.assign(state.v, keep); update();
+}
+const qBtn = (id, label) => HELP[id] ? `<button type="button" class="q" data-help="${id}" aria-expanded="false" aria-controls="hp-${id}" aria-label="O que é ${esc(label)}?">?</button>` : '<span></span>';
+const helpDiv = id => HELP[id] ? `<div class="help" id="hp-${id}" hidden>${HELP[id]}</div>` : '';
 function fieldHTML(it) {
   if (it.type === 'sub') return `<div class="sub" data-sub="${esc(it.label)}">${it.label}</div>`;
-  if (it.type === 'check') return `<label class="check" data-id="${it.id}"><input type="checkbox" id="f-${it.id}" data-k="${it.id}"> ${it.label}</label>`;
-  if (it.type === 'select') return `<label class="minisel" data-id="${it.id}"><span>${it.label}</span><select id="f-${it.id}" data-k="${it.id}">${it.options.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>`;
+  if (it.type === 'check') return `<div class="rowc" data-id="${it.id}"><label class="check"><input type="checkbox" id="f-${it.id}" data-k="${it.id}"> ${it.label}</label>${qBtn(it.id, it.label)}${helpDiv(it.id)}</div>`;
+  if (it.type === 'select') return `<div class="rowc" data-id="${it.id}"><label class="minisel"><span>${it.label}</span><select id="f-${it.id}" data-k="${it.id}">${it.options.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>${qBtn(it.id, it.label)}${helpDiv(it.id)}</div>`;
   return `<div class="f" data-id="${it.id}">
     <label for="f-${it.id}"><span class="sym">${it.sym}</span>${it.label} <span class="u">${it.unit ? '(' + it.unit + ')' : ''}</span></label>
+    ${qBtn(it.id, it.label)}
     <input class="num" type="number" id="f-${it.id}" data-k="${it.id}" min="${it.min}" max="${it.max}" step="${it.step}" inputmode="decimal">
     ${it.slider ? `<input type="range" id="r-${it.id}" data-k="${it.id}" data-range="1" min="${it.min}" max="${it.max}" step="${it.step}" aria-label="${esc(it.label)}">` : ''}
     ${it.hint ? `<div class="hint" id="h-${it.id}"></div>` : ''}
+    ${helpDiv(it.id)}
   </div>`;
 }
 function syncPanel() {
@@ -967,10 +1166,9 @@ function syncPanel() {
   }
   applyVisibility();
   document.querySelectorAll('#modeSeg button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === state.mode)));
-  $('#preset').value = state.preset;
+  document.querySelectorAll('#orgCards [data-org]').forEach(b => b.setAttribute('aria-checked', String(b.dataset.org === state.preset)));
   const pr = PRESETS[state.preset];
-  $('#orgTag').textContent = pr.tag + ' · produto: ' + pr.product;
-  $('#orgBlurb').textContent = pr.blurb;
+  $('#orgBlurb').textContent = pr.blurb + ' Produto modelado: ' + pr.product.toLowerCase() + '.';
   const edited = KIN_KEYS.some(k => state.v[k] !== pr.kin[k]);
   $('#edited').classList.toggle('on', edited);
 }
@@ -1057,6 +1255,11 @@ function drawChart(host) {
   const fx = cfg.xFmt || (v => nf(v, v % 1 ? 1 : 0));
   const fy = v => nf(v, Math.abs(yTop) < 2 ? 2 : Math.abs(yTop) < 10 ? 1 : 0);
   let g = '';
+  (cfg.bands || []).forEach(b => {
+    const a = sx(Math.max(b.x0, x0)), z = sx(Math.min(b.x1, x1)); if (z - a < 0.5) return;
+    g += `<rect x="${a.toFixed(1)}" y="${m.t}" width="${(z - a).toFixed(1)}" height="${ih}" style="fill:${b.color}"/>`;
+    if (z - a > 74) g += `<text x="${a + 6}" y="${m.t + 12}" style="fill:var(--muted);font:600 10.5px var(--f-ui);letter-spacing:.02em">${esc(b.short || b.label)}</text>`;
+  });
   yt.filter(v => v <= yTop + 1e-9).forEach(v => {
     g += `<line x1="${m.l}" x2="${m.l + iw}" y1="${sy(v)}" y2="${sy(v)}" style="stroke:var(--grid)" stroke-width="1"/>`;
     g += `<text x="${m.l - 8}" y="${sy(v) + 4}" text-anchor="end" style="fill:var(--muted);font:11px var(--f-num)">${fy(v)}</text>`;
@@ -1074,7 +1277,7 @@ function drawChart(host) {
     const X = sx(v.x);
     g += `<line x1="${X}" x2="${X}" y1="${m.t}" y2="${m.t + ih}" style="stroke:var(--muted)" stroke-dasharray="2 3" stroke-width="1"/>`;
     const right = X < m.l + iw * 0.7;
-    g += `<text x="${X + (right ? 5 : -5)}" y="${m.t + 10 + (i % 2) * 14}" text-anchor="${right ? 'start' : 'end'}" style="fill:var(--ink-2);font:11.5px var(--f-ui)">${esc(v.label)}</text>`;
+    g += `<text x="${X + (right ? 5 : -5)}" y="${m.t + (cfg.bands ? 28 : 10) + (i % 2) * 14}" text-anchor="${right ? 'start' : 'end'}" style="fill:var(--ink-2);font:11.5px var(--f-ui)">${esc(v.label)}</text>`;
   });
   // séries (referência primeiro, por baixo)
   const order = cfg.series.map((s, i) => i).sort((a, b) => (cfg.series[b].dashed ? 1 : 0) - (cfg.series[a].dashed ? 1 : 0));
@@ -1112,6 +1315,7 @@ function drawChart(host) {
       g += `<text x="${X + 15}" y="${l.y + 4}" style="fill:var(--ink-2);font:12px var(--f-ui)">${esc(l.s.short || l.s.label)} <tspan style="fill:var(--ink);font:500 12px var(--f-num)">${auto(l.v)}</tspan></text>`;
     });
   }
+  g += `<line class="now" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" style="stroke:var(--now)" stroke-width="2" visibility="hidden"/><path class="nowhd" d="M-5 ${m.t - 7}h10l-5 6z" style="fill:var(--now)" visibility="hidden"/>`;
   g += `<line class="xh" x1="0" x2="0" y1="${m.t}" y2="${m.t + ih}" style="stroke:var(--ink-2)" stroke-width="1" visibility="hidden"/>`;
   cfg.series.forEach((s, i) => { g += `<circle class="dot" data-i="${i}" r="4" style="fill:${s.color};stroke:var(--surface)" stroke-width="2" visibility="hidden"/>`; });
   g += `<rect class="hit" x="${m.l}" y="${m.t}" width="${iw}" height="${ih}" fill="transparent" style="cursor:crosshair"/>`;
@@ -1155,6 +1359,19 @@ function drawChart(host) {
     show(nearest(base.x, xv));
   });
   hit.addEventListener('pointerleave', hide);
+  if (cfg.onPick) hit.addEventListener('click', e => {
+    const r = svg.getBoundingClientRect();
+    cfg.onPick(x0 + ((e.clientX - r.left) * (W / r.width) - m.l) / iw * (x1 - x0));
+  });
+  const nowL = svg.querySelector('.now'), nowH = svg.querySelector('.nowhd');
+  host._setNow = x => {
+    host._now = x;
+    if (x == null || x < x0 || x > x1) { nowL.setAttribute('visibility', 'hidden'); nowH.setAttribute('visibility', 'hidden'); return; }
+    const X = sx(x);
+    nowL.setAttribute('x1', X); nowL.setAttribute('x2', X); nowL.setAttribute('visibility', 'visible');
+    nowH.setAttribute('transform', `translate(${X} 0)`); nowH.setAttribute('visibility', 'visible');
+  };
+  if (host._now != null) host._setNow(host._now);
   svg.addEventListener('blur', hide);
   svg.addEventListener('focus', () => show(cur < 0 ? base.x.length - 1 : cur));
   svg.addEventListener('keydown', e => {
@@ -1165,11 +1382,313 @@ function drawChart(host) {
   });
 }
 
+/* ---------- Fases, história e console do reator ---------- */
+const PH = {
+  exp: { label: 'Crescimento exponencial', short: 'exponencial', color: 'var(--ph-exp)', solid: '#3987e5' },
+  desac: { label: 'Desaceleração', short: 'desaceleração', color: 'var(--ph-desac)', solid: '#e0a01c' },
+  o2: { label: 'Limitado por O₂', short: 'O₂ limitante', color: 'var(--ph-o2)', solid: '#e05555' },
+  inib: { label: 'Inibição por produto', short: 'inibição', color: 'var(--ph-inib)', solid: '#9085e9' },
+  fed: { label: 'Alimentação controlada', short: 'alimentação', color: 'var(--ph-fed)', solid: '#1baf7a' },
+  ss: { label: 'Regime estacionário', short: 'regime', color: 'var(--ph-ss)', solid: '#2fc28b' },
+  stat: { label: 'Estacionária / declínio', short: 'estacionária', color: 'var(--ph-stat)', solid: '#8a978f' },
+  none: { label: 'Sem crescimento', short: 'sem crescimento', color: 'var(--ph-none)', solid: '#6c7a73' }
+};
+function computePhases(s) {
+  const { p, out } = s, n = out.t.length, mref = p.muEff, lab = new Array(n);
+  const back = (k, dt) => { let j = k; while (j > 0 && out.t[k] - out.t[j] < dt) j--; return j; };
+  for (let k = 0; k < n; k++) {
+    const t = out.t[k], mu = out.mu[k];
+    let ph = null;
+    if (!(mref > 0)) ph = 'none';
+    else if (p.mode === 'chemostat' && t > p.tFeed + 1) {
+      const j = back(k, 1.5), dX = Math.abs(out.X[k] - out.X[j]) / Math.max(out.X[k], 1e-6);
+      if (dX < 0.01 && out.X[k] > 1e-3) ph = 'ss';
+    }
+    if (!ph) {
+      if (mu <= Math.max(p.kd * 1.3, 0.04 * mref)) ph = 'stat';
+      else if (out.DO[k] != null && out.DO[k] < 5) ph = 'o2';
+      else if (p.mode === 'fedbatch' && t >= p.tFeed && out.F[k] > 0 && out.S[k] < 5 * p.Ks + 0.5) ph = 'fed';
+      else if (out.fP[k] < 0.7 && mu / mref < 0.8) ph = 'inib';
+      else if (mu / mref >= 0.8) ph = 'exp';
+      else ph = 'desac';
+    }
+    lab[k] = ph;
+  }
+  let segs = [], s0 = 0;
+  for (let k = 1; k <= n; k++) if (k === n || lab[k] !== lab[s0]) { segs.push({ ph: lab[s0], i0: s0, i1: k - 1 }); s0 = k; }
+  const minDur = 0.025 * p.tEnd;
+  let changed = true;
+  while (changed && segs.length > 1) {
+    changed = false;
+    for (let i = 0; i < segs.length; i++) {
+      const sg = segs[i];
+      if (out.t[sg.i1] - out.t[sg.i0] < minDur) { if (i > 0) segs[i - 1].i1 = sg.i1; else segs[i + 1].i0 = sg.i0; segs.splice(i, 1); changed = true; break; }
+    }
+    for (let i = 1; i < segs.length; i++) if (segs[i].ph === segs[i - 1].ph) { segs[i - 1].i1 = segs[i].i1; segs.splice(i, 1); i--; changed = true; }
+  }
+  segs.forEach(sg => { sg.t0 = out.t[sg.i0]; sg.t1 = out.t[Math.min(sg.i1 + 1, n - 1)]; });
+  return { lab, segs };
+}
+const dup = mu => { if (!(mu > 0)) return '—'; const h = Math.LN2 / mu; return h < 1 ? nf(h * 60, 0) + ' min' : nf(h, 1) + ' h'; };
+function storyText(sg, s) {
+  const { p, out } = s, a = sg.i0, b = sg.i1, prod = PRESETS[state.preset].product;
+  let mu = 0; for (let k = a; k <= b; k++) mu += out.mu[k]; mu /= (b - a + 1);
+  let sAvg = 0; for (let k = a; k <= b; k++) sAvg += out.S[k]; sAvg /= (b - a + 1);
+  const X = `${auto(out.X[a])} → ${auto(out.X[b])} g/L`;
+  switch (sg.ph) {
+    case 'exp': return `μ ≈ ${nf(mu, 2)} h⁻¹: a biomassa dobra a cada ${dup(mu)}. X vai de ${X}; o substrato cai de ${auto(out.S[a])} para ${auto(out.S[b])} g/L.`;
+    case 'desac': return p.mode === 'chemostat' && sg.t0 >= p.tFeed ? `O reator se ajusta à diluição (D = ${nf(p.D, 2)} h⁻¹) e as concentrações caminham para o regime. X: ${X}.` : `O substrato chega perto de K<sub>S</sub> (${auto(p.Ks)} g/L) e o crescimento perde força: μ cai para ${nf(out.mu[b], 2)} h⁻¹.`;
+    case 'o2': return `O consumo de O₂ passa a capacidade de transferência e o OD fica perto de zero. O crescimento deixa de ser exponencial e vira linear (X: ${X}). Mais agitação ou aeração resolveria.`;
+    case 'inib': return `O ${prod.toLowerCase()} acumulado (${auto(out.P[b])} g/L) freia o crescimento: μ chega a ${nf(out.mu[b], 2)} h⁻¹, longe do máximo de ${nf(p.muEff, 2)} h⁻¹.`;
+    case 'fed': return `A bomba passa a controlar o crescimento: substrato mantido baixo (≈ ${auto(sAvg)} g/L), μ ≈ ${nf(mu, 2)} h⁻¹, volume de ${auto(out.V[a])} para ${auto(out.V[b])} L e X de ${X}.`;
+    case 'ss': return `Entrada e saída se equilibram: X ≈ ${auto(out.X[b])} g/L, S ≈ ${auto(out.S[b])} g/L e ${prod.toLowerCase()} ≈ ${auto(out.P[b])} g/L, com μ = D + k<sub>d</sub>.`;
+    case 'stat': return `${out.S[b] < 0.1 ? 'Sem substrato' : 'Com o crescimento praticamente parado'}, a cultura entra em fase estacionária${p.kd > 0 ? ' e declina devagar por morte celular' : ''}. X termina em ${auto(out.X[b])} g/L.`;
+    default: return 'Nessas condições não há crescimento. Confira temperatura, pH e a faixa cardinal do organismo.';
+  }
+}
+
+/* ---- console: leituras ---- */
+const CON = { s1: '#3987e5', s2: '#d95926', s3: '#199e70' };
+let tNow = null, playing = false, speed = 1, phaseInfo = null, maxes = {}, playRaf = 0, autoplayed = false;
+function roHTML(id, label, color, unit, bar) {
+  return `<div class="ro" id="ro-${id}"><div class="k">${color ? `<i style="background:${color}"></i>` : ''}${label}</div><div class="v"><span></span><small>${unit}</small></div>${bar ? `<div class="bar"><b style="background:${color || '#b5c9c0'}"></b></div>` : ''}<div class="d"></div></div>`;
+}
+function buildConsole() {
+  const { p, out, ev } = sim, prod = PRESETS[state.preset].product;
+  phaseInfo = computePhases(sim);
+  maxes = { X: Math.max(ev.Xmax, 1e-6), S: Math.max(...out.S, 1e-6), P: Math.max(ev.Pmax, 1e-6), V: Math.max(p.mode === 'fedbatch' ? p.Vmax : 0, ...out.V), mu: Math.max(p.muEff, ev.muMax, 1e-6) };
+  let h = roHTML('X', 'Biomassa X', CON.s1, 'g/L', true) + roHTML('S', 'Substrato S', CON.s2, 'g/L', true) + roHTML('P', esc(prod) + ' P', CON.s3, 'g/L', true);
+  if (p.aer) h += `<div class="ro gauge" id="ro-DO"><svg viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="18" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="5"/><circle class="arc" cx="23" cy="23" r="18" fill="none" stroke-width="5" stroke-linecap="round" transform="rotate(-90 23 23)" stroke-dasharray="0 113.1"/></svg><div class="k">O₂ dissolvido</div><div class="v"><span></span><small>% sat.</small></div><div class="d"></div></div>`;
+  h += roHTML('mu', 'Crescimento μ', '#b5c9c0', 'h⁻¹', true);
+  if (p.aer) h += roHTML('ag', p.kLaSrc === 'equip' ? 'Agitação' : 'Transferência kLa', '', p.kLaSrc === 'equip' ? 'rpm' : 'h⁻¹', false);
+  if (p.mode === 'fedbatch') h += roHTML('V', 'Volume', '#b5c9c0', 'L', true);
+  if (p.mode === 'chemostat') h += roHTML('F', 'Vazão (entra = sai)', '', 'L/h', false);
+  h += roHTML('env', 'Controle T · pH', '', '', false);
+  $('#readouts').innerHTML = h;
+  // trilha de fases, marcas e legenda
+  const tE = p.tEnd;
+  $('#phaseTrack').innerHTML = phaseInfo.segs.map(sg => `<span style="width:${((sg.t1 - sg.t0) / tE * 100).toFixed(3)}%;background:${PH[sg.ph].solid};opacity:.85" title="${esc(PH[sg.ph].label)}"></span>`).join('');
+  $('#ticks').innerHTML = [0, .25, .5, .75, 1].map(f => `<span>${nf(tE * f, tE * f % 1 ? 1 : 0)} h</span>`).join('');
+  const seen = [...new Set(phaseInfo.segs.map(sg => sg.ph))];
+  $('#phaseLegend').innerHTML = seen.map(k => `<span><i style="background:${PH[k].solid}"></i>${PH[k].label}</span>`).join('');
+  const sc = $('#scrub'); sc.max = tE; sc.step = tE / 1000;
+  // história
+  $('#story').innerHTML = phaseInfo.segs.map((sg, i) => `<li data-i="${i}" tabindex="0"><span class="tm">${nf(sg.t0, 1)}–${nf(sg.t1, 1)} h</span><span class="dot" style="background:${PH[sg.ph].solid}"></span><span class="tx"><b>${PH[sg.ph].label}</b>${storyText(sg, sim)}</span></li>`).join('');
+  if (tNow == null) tNow = tE;
+  tNow = Math.min(tNow, tE);
+  reactor.configure();
+}
+function setTime(t, fromScrub) {
+  if (!sim) return;
+  const { p, out } = sim, n = out.t.length;
+  tNow = Math.max(0, Math.min(p.tEnd, t));
+  const k = nearest(out.t, tNow);
+  if (!fromScrub) $('#scrub').value = tNow;
+  $('#conT').innerHTML = `${nf(tNow, 1)}<small>h</small>`;
+  const set = (id, v, frac, d) => {
+    const el = document.getElementById('ro-' + id); if (!el) return;
+    el.querySelector('.v span').textContent = v;
+    const b = el.querySelector('.bar b'); if (b && frac != null) b.style.width = Math.max(0, Math.min(100, frac * 100)).toFixed(1) + '%';
+    if (d != null) el.querySelector('.d').innerHTML = d;
+  };
+  set('X', auto(out.X[k]), out.X[k] / maxes.X, `máx. ${auto(maxes.X)} g/L`);
+  set('S', auto(out.S[k]), out.S[k] / maxes.S, out.S[k] < 0.1 ? 'esgotado' : `início ${auto(out.S[0])} g/L`);
+  set('P', auto(out.P[k]), out.P[k] / maxes.P, p.useP ? `inibe a ${auto(p.Pmax)} g/L` : `máx. ${auto(maxes.P)} g/L`);
+  set('mu', nf(out.mu[k], 3), out.mu[k] / maxes.mu, out.mu[k] > 0.005 ? `dobra em ${dup(out.mu[k])}` : 'parado');
+  if (p.aer) {
+    const d = out.DO[k] ?? 0, el = $('#ro-DO');
+    if (el) {
+      el.querySelector('.v span').textContent = nf(d, 1);
+      const arc = el.querySelector('.arc'); arc.setAttribute('stroke-dasharray', `${(Math.max(0, Math.min(100, d)) / 100 * 113.1).toFixed(1)} 113.1`);
+      arc.setAttribute('stroke', d < 5 ? '#e05555' : d < 20 ? '#f1b24a' : '#2fbf2f');
+      el.querySelector('.d').textContent = d < 5 ? 'O₂ limitante' : d < 20 ? 'perto do limite' : 'folgado';
+    }
+    if (p.kLaSrc === 'equip') set('ag', nf(rpmForKla(p, out.kLa[k]), 0), null, `kLa ${nf(out.kLa[k], 0)} h⁻¹`);
+    else set('ag', nf(out.kLa[k], 0), null, p.doCtl === 'cascade' ? 'ajustado pela cascata' : 'fixo');
+  }
+  if (p.mode === 'fedbatch') set('V', nf(out.V[k], 2), out.V[k] / maxes.V, out.F[k] > 0 ? `entrando ${nf(out.F[k] * 1000, 1)} mL/h` : (out.t[k] < p.tFeed ? 'bomba desligada' : 'bomba parada'));
+  if (p.mode === 'chemostat') set('F', nf(out.F[k], 3), null, out.F[k] > 0 ? `D = ${nf(p.D, 3)} h⁻¹` : 'fase de batelada');
+  set('env', `${nf(p.T, 1)} °C`, null, `pH ${nf(p.pH, 1)} · ${nf(p.gT * p.gpH * 100, 0)}% do ótimo`);
+  const ph = phaseInfo.lab[k] || 'none';
+  const pill = $('#phasePill'); pill.querySelector('i').style.background = PH[ph].solid; pill.querySelector('span').textContent = PH[ph].label;
+  ['#chMain', '#chDO', '#chMu', '#chKla', '#chV'].forEach(id => { const h = $(id); if (h && h._setNow) h._setNow(tNow); });
+  const segI = phaseInfo.segs.findIndex(sg => tNow >= sg.t0 - 1e-9 && tNow <= sg.t1 + 1e-9);
+  document.querySelectorAll('#story li').forEach((li, i) => li.classList.toggle('on', i === segI));
+  reactor.setState(k);
+}
+function setPlaying(on) {
+  playing = on;
+  const b = $('#playBtn');
+  b.setAttribute('aria-label', on ? 'Pausar' : 'Reproduzir');
+  b.innerHTML = on ? '<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3.5" y="2.5" width="3" height="11" rx="1" fill="currentColor"/><rect x="9.5" y="2.5" width="3" height="11" rx="1" fill="currentColor"/></svg>' : '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2.5l9.5 5.5L4 13.5z" fill="currentColor"/></svg>';
+  cancelAnimationFrame(playRaf);
+  if (on) {
+    if (tNow >= sim.p.tEnd - 1e-9) tNow = 0;
+    let last = performance.now();
+    const step = now => {
+      const dt = Math.min(0.1, (now - last) / 1000); last = now;
+      const nt = tNow + dt * sim.p.tEnd / 14 * speed;
+      if (nt >= sim.p.tEnd) { setTime(sim.p.tEnd); setPlaying(false); return; }
+      setTime(nt); playRaf = requestAnimationFrame(step);
+    };
+    playRaf = requestAnimationFrame(step);
+  }
+}
+
+/* ---- console: o biorreator animado (canvas) ---- */
+const reactor = (() => {
+  const cv = document.getElementById('reactor'), ctx = cv.getContext('2d');
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, dpr = 1, st = null, cfg = null, phase = 0, last = 0, running = false, visible = true, raf = 0;
+  const parts = [], bubbles = [], drops = [];
+  const R = (() => { let s = 12345; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; })();
+  for (let i = 0; i < 260; i++) parts.push({ x: R(), y: R(), r: 0.6 + R() * 1.2, ph: R() * 6.28, sp: 0.2 + R() * 0.6 });
+  function resize() {
+    const r = cv.getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = Math.max(240, r.width); H = Math.max(300, r.height);
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    draw(0);
+  }
+  function configure() {
+    const { p, out } = sim;
+    let qpMax = 1e-9; for (let k = 0; k < out.t.length; k++) { const q = (p.alpha * out.mu[k] + p.beta) * out.X[k]; if (q > qpMax) qpMax = q; }
+    cfg = { p, out, look: LOOK[state.preset], qpMax, Vcap: p.mode === 'fedbatch' ? Math.max(p.Vmax, ...out.V) * 1.12 : p.V0 * 1.4,
+      imp: p.kLaSrc === 'equip' ? p.imp : 'rushton', nImp: p.kLaSrc === 'equip' ? p.nImp : (p.aer ? 2 : 1) };
+  }
+  function setState(k) {
+    const { p, out } = cfg;
+    const X = out.X[k];
+    st = { k, turb: 1 - Math.exp(-X / 3), level: Math.min(0.97, out.V[k] / cfg.Vcap), V: out.V[k], F: out.F[k], DO: out.DO[k],
+      aer: p.aer, rpm: p.aer ? (p.kLaSrc === 'equip' ? rpmForKla(p, out.kLa[k]) : 250 + out.kLa[k] * 1.2) : 180,
+      air: p.aer ? (p.kLaSrc === 'equip' ? p.vvm : 1) * (0.4 + Math.min(1.6, out.kLa[k] / 250)) : 0,
+      co2: !p.aer ? Math.min(1, (p.alpha * out.mu[k] + p.beta) * out.X[k] / cfg.qpMax) : 0,
+      mode: p.mode, feeding: out.F[k] > 0 };
+    if (!running) draw(0);
+  }
+  const mix = (a, b, f) => a.map((v, i) => Math.round(v * (1 - f) + b[i] * f));
+  function blade(type, x, y, w, h, front, dir) {
+    ctx.fillStyle = front ? '#cfdcd6' : '#6f827b';
+    if (type === 'rushton') ctx.fillRect(x - w / 2, y - h / 2, w, h);
+    else if (type === 'pbt') { ctx.beginPath(); ctx.moveTo(x - w / 2, y + h * 0.35 * dir); ctx.lineTo(x + w / 2, y - h * 0.35 * dir); ctx.lineTo(x + w / 2, y - h * 0.35 * dir + h * 0.45); ctx.lineTo(x - w / 2, y + h * 0.35 * dir + h * 0.45); ctx.closePath(); ctx.fill(); }
+    else { ctx.beginPath(); ctx.ellipse(x, y, Math.max(1, w / 2), h * (type === 'marine' ? 0.42 : 0.3), dir * 0.5, 0, 6.283); ctx.fill(); }
+  }
+  function draw(dt) {
+    if (!st || !cfg) return;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const tw = Math.min(W * 0.56, 220), th = Math.min(H * 0.64, tw * 1.5), cx = W / 2, top = H * 0.2, bot = top + th, x0 = cx - tw / 2, rad = 26;
+    const yL = bot - (th - 6) * st.level;
+    const tt = performance.now() / 1000;
+    // base
+    ctx.fillStyle = '#16241f'; ctx.fillRect(cx - tw * 0.42, bot + 8, tw * 0.84, 8); ctx.fillRect(cx - tw * 0.3, bot + 16, tw * 0.6, 5);
+    // vidro (interior)
+    const glass = () => { ctx.beginPath(); ctx.moveTo(x0, top); ctx.lineTo(x0, bot - rad); ctx.quadraticCurveTo(x0, bot, x0 + rad, bot); ctx.lineTo(x0 + tw - rad, bot); ctx.quadraticCurveTo(x0 + tw, bot, x0 + tw, bot - rad); ctx.lineTo(x0 + tw, top); };
+    ctx.save(); glass(); ctx.closePath(); ctx.fillStyle = 'rgba(255,255,255,0.025)'; ctx.fill(); ctx.clip();
+    // líquido
+    const c = mix(cfg.look.medium, cfg.look.cells, Math.min(1, st.turb * 1.1));
+    const alpha = 0.32 + 0.6 * st.turb;
+    const grd = ctx.createLinearGradient(0, yL, 0, bot);
+    grd.addColorStop(0, `rgba(${c},${Math.min(1, alpha + 0.08)})`); grd.addColorStop(1, `rgba(${mix(c, [60, 40, 20], 0.18)},${Math.min(1, alpha + 0.2)})`);
+    ctx.fillStyle = grd;
+    ctx.beginPath(); ctx.moveTo(x0 - 2, yL);
+    for (let x = 0; x <= tw + 4; x += 6) ctx.lineTo(x0 - 2 + x, yL + Math.sin(x * 0.08 + tt * 3) * (reduce ? 0 : 1.2));
+    ctx.lineTo(x0 + tw + 2, bot + 2); ctx.lineTo(x0 - 2, bot + 2); ctx.closePath(); ctx.fill();
+    // células em suspensão
+    const nP = Math.floor(20 + 240 * st.turb);
+    ctx.fillStyle = `rgba(${mix(c, [255, 255, 255], 0.55)},0.55)`;
+    for (let i = 0; i < nP; i++) {
+      const q = parts[i], px = x0 + 6 + ((q.x + (reduce ? 0 : Math.sin(tt * q.sp + q.ph) * 0.03)) % 1) * (tw - 12);
+      const py = yL + 6 + ((q.y + (reduce ? 0 : tt * 0.02 * q.sp)) % 1) * (bot - yL - 10);
+      ctx.beginPath(); ctx.arc(px, py, q.r, 0, 6.283); ctx.fill();
+    }
+    // chicanas
+    ctx.fillStyle = 'rgba(255,255,255,0.10)'; ctx.fillRect(x0 + 3, top + 12, 4, th - 30); ctx.fillRect(x0 + tw - 7, top + 12, 4, th - 30);
+    // bolhas
+    const spY = bot - th * 0.09, Di = tw * 0.42;
+    if (!reduce && dt > 0) {
+      const rateAir = st.air * 40, rateCO2 = st.co2 * 45;
+      let na = rateAir * dt; while (na > 0) { if (R() < na) bubbles.push({ x: cx + (R() - 0.5) * Di * 0.8, y: spY, r: 1.6 + R() * 2.2, v: 55 + R() * 55, w: R() * 6.28, co2: false }); na -= 1; }
+      let nc = rateCO2 * dt; while (nc > 0) { if (R() < nc) bubbles.push({ x: x0 + 10 + R() * (tw - 20), y: yL + 10 + R() * (bot - yL - 20), r: 0.8 + R() * 1.1, v: 25 + R() * 25, w: R() * 6.28, co2: true }); nc -= 1; }
+      for (const b of bubbles) { b.y -= b.v * dt; b.x += Math.sin(tt * 3 + b.w) * 0.35 + (b.co2 ? 0 : (b.x - cx) * 0.25 * dt); }
+      for (let i = bubbles.length - 1; i >= 0; i--) if (bubbles[i].y < yL + 2 || bubbles.length > 320) bubbles.splice(i, 1);
+    }
+    ctx.lineWidth = 1;
+    for (const b of bubbles) { ctx.strokeStyle = b.co2 ? 'rgba(255,255,255,0.45)' : 'rgba(210,240,255,0.75)'; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 6.283); ctx.stroke(); }
+    // aspersor
+    if (st.aer) { ctx.strokeStyle = '#8fa39b'; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx, spY, Di * 0.4, 3, 0, 0, 6.283); ctx.stroke(); }
+    // eixo e impelidores
+    const nI = cfg.nImp, clear = th * 0.2, span = th * 0.62;
+    const ys = []; for (let i = 0; i < nI; i++) ys.push(bot - clear - i * (nI > 1 ? span / (nI) : 0));
+    ctx.strokeStyle = '#b5c9c0'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, top - 30); ctx.lineTo(cx, ys[0] + 6); ctx.stroke();
+    if (!reduce) phase += dt * (st.rpm / 60) * 2 * Math.PI * 0.11;
+    const nb = cfg.imp === 'rushton' ? 6 : cfg.imp === 'pbt' ? 4 : 3;
+    ys.forEach(y => {
+      const r = Di / 2, bh = cfg.imp === 'rushton' ? Di * 0.2 : Di * 0.22;
+      const bl = [];
+      for (let j = 0; j < nb; j++) { const a = phase + j * 2 * Math.PI / nb; bl.push({ x: cx + Math.cos(a) * r * (cfg.imp === 'rushton' ? 0.82 : 0.55), z: Math.sin(a), w: Math.max(2, (cfg.imp === 'rushton' ? Di * 0.2 : Di * 0.42) * Math.abs(Math.sin(a))), dir: Math.cos(a) > 0 ? 1 : -1 }); }
+      bl.filter(b => b.z < 0).forEach(b => blade(cfg.imp, b.x, y, b.w, bh, false, b.dir));
+      if (cfg.imp === 'rushton') { ctx.fillStyle = '#9fb3ab'; ctx.beginPath(); ctx.ellipse(cx, y, r * 0.66, 3.2, 0, 0, 6.283); ctx.fill(); }
+      ctx.fillStyle = '#dfe9e4'; ctx.fillRect(cx - 4, y - 5, 8, 10);
+      bl.filter(b => b.z >= 0).forEach(b => blade(cfg.imp, b.x, y, b.w, bh, true, b.dir));
+    });
+    // sondas
+    [[0.2, 'pH', 0.62], [0.8, 'OD', 0.58], [0.68, 'T', 0.3]].forEach(([f, lb, len]) => {
+      const x = x0 + tw * f; ctx.fillStyle = '#44584f'; ctx.fillRect(x - 2.5, top - 6, 5, th * len);
+      ctx.fillStyle = '#9fb3ab'; ctx.fillRect(x - 2.5, top - 6 + th * len - 6, 5, 6);
+    });
+    ctx.restore();
+    // contorno do vidro e reflexo
+    ctx.strokeStyle = 'rgba(233,243,238,0.85)'; ctx.lineWidth = 2; glass(); ctx.stroke();
+    const hl = ctx.createLinearGradient(x0, 0, x0 + tw * 0.25, 0); hl.addColorStop(0, 'rgba(255,255,255,0.10)'); hl.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = hl; ctx.fillRect(x0 + 5, top + 8, tw * 0.18, th - 40);
+    // tampa, motor
+    ctx.fillStyle = '#5b6f68'; ctx.fillRect(x0 - 10, top - 10, tw + 20, 10);
+    ctx.fillStyle = '#26352f'; ctx.fillRect(cx - 20, top - 46, 40, 30); ctx.fillStyle = '#f1b24a'; ctx.fillRect(cx - 20, top - 46, 40, 4);
+    ctx.fillStyle = '#9fb3ab'; ctx.font = '600 10px ' + getComputedStyle(document.body).getPropertyValue('--f-num');
+    ctx.textAlign = 'center';
+    [[0.2, 'pH'], [0.8, 'OD'], [0.68, 'T']].forEach(([f, lb]) => ctx.fillText(lb, x0 + tw * f, top - 14));
+    ctx.fillStyle = '#eef5f1'; ctx.font = '500 11px ' + getComputedStyle(document.body).getPropertyValue('--f-num');
+    ctx.fillText(nf(st.rpm, 0) + ' rpm', cx, top - 52);
+    // alimentação
+    if (cfg.p.mode !== 'batch') {
+      const fx = x0 + tw * 0.36;
+      ctx.strokeStyle = st.feeding ? '#d95926' : '#44584f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(8, top - 30); ctx.lineTo(fx, top - 30); ctx.lineTo(fx, top + 4); ctx.stroke();
+      ctx.fillStyle = st.feeding ? '#d95926' : '#7f978d'; ctx.textAlign = 'left'; ctx.font = '600 10.5px ' + getComputedStyle(document.body).getPropertyValue('--f-ui');
+      ctx.fillText(st.feeding ? 'alimentação' : 'bomba parada', 8, top - 36);
+      if (st.feeding && !reduce && dt > 0) { if (R() < dt * 5) drops.push({ y: top + 6, v: 40 }); }
+      for (const d of drops) { d.v += 400 * dt; d.y += d.v * dt; }
+      for (let i = drops.length - 1; i >= 0; i--) if (drops[i].y > yL) drops.splice(i, 1);
+      ctx.fillStyle = '#d95926'; drops.forEach(d => { ctx.beginPath(); ctx.ellipse(fx, d.y, 2, 3, 0, 0, 6.283); ctx.fill(); });
+    }
+    if (cfg.p.mode === 'chemostat') {
+      const oy = Math.max(yL + 4, top + 10);
+      ctx.strokeStyle = st.feeding ? '#3987e5' : '#44584f'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + tw, oy); ctx.lineTo(W - 10, oy); ctx.stroke();
+      if (st.feeding) { ctx.setLineDash([6, 6]); ctx.lineDashOffset = reduce ? 0 : -tt * 30; ctx.strokeStyle = '#9cc4f2'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0 + tw, oy); ctx.lineTo(W - 12, oy); ctx.stroke(); ctx.setLineDash([]); }
+      ctx.fillStyle = st.feeding ? '#3987e5' : '#7f978d'; ctx.textAlign = 'right'; ctx.fillText('saída', W - 10, oy - 7);
+    }
+    // nível
+    ctx.strokeStyle = 'rgba(241,178,74,0.9)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x0 - 14, yL); ctx.lineTo(x0 - 6, yL); ctx.stroke();
+    ctx.fillStyle = '#f1b24a'; ctx.textAlign = 'right'; ctx.font = '500 11px ' + getComputedStyle(document.body).getPropertyValue('--f-num');
+    ctx.fillText(nf(st.V, 2) + ' L', x0 - 17, yL + 4);
+  }
+  function loop(now) {
+    const dt = last ? Math.min(0.05, (now - last) / 1000) : 0; last = now;
+    draw(dt);
+    if (running) raf = requestAnimationFrame(loop);
+  }
+  function start() { if (running || reduce || !visible || document.hidden) return; running = true; last = 0; raf = requestAnimationFrame(loop); }
+  function stop() { running = false; cancelAnimationFrame(raf); }
+  if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting && !cv.closest('[hidden]'); visible ? start() : stop(); }).observe(cv);
+  document.addEventListener('visibilitychange', () => { document.hidden ? stop() : start(); });
+  if ('ResizeObserver' in window) new ResizeObserver(resize).observe(cv);
+  return { configure, setState, resize, start, stop, get running() { return running; } };
+})();
+
 /* ---------- Render principal ---------- */
 function update() {
   syncPanel();
   sim = simulate(Object.assign({ mode: state.mode }, state.v));
-  renderStatus(); renderKPIs(); renderAlerts(); renderCharts(); renderTable();
+  renderKPIs(); renderAlerts(); renderCharts(); renderTable(); buildConsole(); setTime(tNow);
   const tab = document.querySelector('.tabs [aria-selected="true"]').dataset.tab;
   if (tab === 'ss') renderSS();
   if (tab === 'amb') renderAmb();
@@ -1177,6 +1696,7 @@ function update() {
 }
 
 function renderStatus() {
+  if (!$('#status')) return;
   const { p, out } = sim, L = out.t.length - 1, pr = PRESETS[state.preset];
   const items = [['Organismo', pr.name.replace(/^(\w)\w+ /, '$1. ')], ['Modo', MODES[state.mode]], ['T', nf(p.T, 1) + ' °C'], ['pH', nf(p.pH, 2)]];
   if (p.aer && p.kLaSrc === 'equip') items.push(['Impelidor', p.nImp + '× ' + IMPELLERS[p.imp].name.split(' (')[0]]);
@@ -1268,17 +1788,17 @@ function renderCharts() {
     x: [0, xMax], height: 300, endLabels: true, aria: 'Curvas de biomassa, substrato e produto em função do tempo',
     series: [S('X', 'Biomassa X', 'var(--s1)', { short: 'X', unit: 'g/L' }), S('S', 'Substrato S', 'var(--s2)', { short: 'S', unit: 'g/L' }), S('P', prod + ' P', 'var(--s3)', { short: 'P', unit: 'g/L' }),
       ...RS('X', 'X', 'var(--s1)'), ...RS('S', 'S', 'var(--s2)'), ...RS('P', 'P', 'var(--s3)')],
-    vlines
+    vlines, bands: computePhases(sim).segs.map(sg => ({ x0: sg.t0, x1: sg.t1, color: PH[sg.ph].color, label: PH[sg.ph].label, short: PH[sg.ph].short })), onPick: t => setTime(t)
   });
   $('#cardDO').hidden = !p.aer;
   if (p.aer) {
     chart($('#chDO'), {
       x: [0, xMax], yMax: 100, aria: 'Oxigênio dissolvido em porcentagem da saturação',
       series: [S('DO', 'OD', 'var(--s1)', { unit: '%' }), ...(R && R.DO.some(v => v != null) ? RS('DO', 'OD', 'var(--s1)') : [])],
-      hlines: [p.doCtl === 'cascade' ? { y: p.DOsp, label: 'setpoint ' + nf(p.DOsp, 0) + '%' } : { y: 20, label: '20%: margem usual' }], vlines
+      hlines: [p.doCtl === 'cascade' ? { y: p.DOsp, label: 'setpoint ' + nf(p.DOsp, 0) + '%' } : { y: 20, label: '20%: margem usual' }], vlines, onPick: t => setTime(t)
     });
   }
-  chart($('#chMu'), { x: [0, xMax], aria: 'Velocidade específica de crescimento', series: [S('mu', 'μ', 'var(--s1)', { unit: 'h⁻¹' }), ...RS('mu', 'μ', 'var(--s1)')], vlines,
+  chart($('#chMu'), { x: [0, xMax], aria: 'Velocidade específica de crescimento', series: [S('mu', 'μ', 'var(--s1)', { unit: 'h⁻¹' }), ...RS('mu', 'μ', 'var(--s1)')], vlines, onPick: t => setTime(t),
     hlines: state.mode === 'chemostat' ? [{ y: p.D + p.kd, label: 'D + kd' }] : [] });
   $('#cardKla').hidden = !(p.aer && p.doCtl === 'cascade');
   if (p.aer && p.doCtl === 'cascade') {
@@ -1681,14 +2201,14 @@ async function exportCSV() {
 }
 function togglePin() {
   const btn = $('#pinBtn');
-  if (ref) { ref = null; btn.setAttribute('aria-pressed', 'false'); btn.querySelector('span').textContent = 'Fixar como referência'; }
+  if (ref) { ref = null; btn.setAttribute('aria-pressed', 'false'); btn.querySelector('span').textContent = 'Comparar cenários'; }
   else {
     const o = sim.out;
     const d = new Date();
     ref = { label: `referência (${PRESETS[state.preset].name.replace(/^(\w)\w+ /, '$1. ')}, ${MODES[state.mode].toLowerCase()}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')})`,
       out: { t: o.t.slice(), X: o.X.slice(), S: o.S.slice(), P: o.P.slice(), DO: o.DO.slice(), mu: o.mu.slice(), V: o.V.slice() } };
-    btn.setAttribute('aria-pressed', 'true'); btn.querySelector('span').textContent = 'Limpar referência';
-    toast('Cenário fixado. Mude os parâmetros para comparar com a linha tracejada.');
+    btn.setAttribute('aria-pressed', 'true'); btn.querySelector('span').textContent = 'Limpar comparação';
+    toast('Cenário atual guardado como referência (tracejado). Agora mude os parâmetros para comparar.');
   }
   renderCharts();
 }
@@ -1700,11 +2220,19 @@ renderModel();
 document.querySelectorAll('#modeSeg button').forEach(b => b.addEventListener('click', () => setMode(b.dataset.mode)));
 $('#modeSeg').addEventListener('keydown', e => {
   const ms = ['batch', 'fedbatch', 'chemostat'], i = ms.indexOf(state.mode);
+  if (!ms.includes(document.activeElement.dataset.mode)) return;
   if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { setMode(ms[(i + (e.key === 'ArrowRight' ? 1 : 2)) % 3]); document.querySelector(`#modeSeg [data-mode="${state.mode}"]`).focus(); e.preventDefault(); }
 });
-$('#preset').addEventListener('change', e => { const keep = {}; EQUIP_KEYS.forEach(k => { keep[k] = state.v[k]; }); state = fromPreset(e.target.value, state.mode); Object.assign(state.v, keep); update(); });
+
 $('#resetBtn').addEventListener('click', () => { Object.assign(state.v, PRESETS[state.preset].kin); update(); toast('Cinética do preset restaurada.'); });
 $('#pinBtn').addEventListener('click', togglePin);
+$('#playBtn').addEventListener('click', () => setPlaying(!playing));
+$('#scrub').addEventListener('input', e => { if (playing) setPlaying(false); setTime(parseFloat(e.target.value), true); });
+$('#speedBtn').addEventListener('click', () => { speed = speed === 1 ? 2 : speed === 2 ? 4 : 1; $('#speedBtn').textContent = speed + '×'; });
+$('#story').addEventListener('click', e => { const li = e.target.closest('li'); if (!li) return; if (playing) setPlaying(false); setTime(phaseInfo.segs[+li.dataset.i].t0 + 1e-6); });
+$('#story').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const li = e.target.closest('li'); if (li) { e.preventDefault(); setTime(phaseInfo.segs[+li.dataset.i].t0 + 1e-6); } } });
+try { if (localStorage.getItem('bio-howto-off') === '1') $('#howto').hidden = true; } catch (e) { /* ignora */ }
+$('#howtoClose').addEventListener('click', () => { $('#howto').hidden = true; try { localStorage.setItem('bio-howto-off', '1'); } catch (e) { /* ignora */ } });
 $('#csvBtn').addEventListener('click', exportCSV);
 document.querySelectorAll('#tabs [role=tab]').forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll('#tabs [role=tab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
@@ -1712,9 +2240,11 @@ document.querySelectorAll('#tabs [role=tab]').forEach(b => b.addEventListener('c
   if (b.dataset.tab === 'fit') renderFit();
   if (b.dataset.tab === 'ss') renderSS();
   if (b.dataset.tab === 'amb') renderAmb();
-  if (b.dataset.tab === 'cultivo') renderCharts();
+  if (b.dataset.tab === 'cultivo') { renderCharts(); setTime(tNow); reactor.resize(); }
 }));
 update();
+reactor.resize();
+if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) setTimeout(() => { if (!autoplayed) { autoplayed = true; tNow = 0; setPlaying(true); } }, 700);
 if (window.claude && typeof window.claude.use === 'function') {
   window.claude.use('downloads').then(d => { downloads = d; }).catch(() => {});
 }
